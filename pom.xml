@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>info.kuechler.bmf.taxcalculator</groupId>
 	<artifactId>taxcalculator</artifactId>
-	<version>2016.0.0</version>
+	<version>2016.0.0.BUILD-SNAPSHOT</version>
 	<name>TaxCalculator</name>
 	
 	<!-- 
@@ -68,8 +68,9 @@
 		<file.host>https://www.bmf-steuerrechner.de</file.host>
 		<classes.package.directory>info/kuechler/bmf/taxcalculator</classes.package.directory>
 		<file.download.target>${project.build.directory}/download-files</file.download.target>
-		<project.src.directory>${project.build.directory}/generated-classes</project.src.directory>
-		<file.generated.target>${project.src.directory}/${classes.package.directory}</file.generated.target>
+		<!-- <project.src.directory>${project.build.directory}/generated-classes</project.src.directory> -->
+		<generated.sources.directory>target/generated-sources/calculators</generated.sources.directory>
+		<!-- <file.generated.target>target/generated-sources/calculators/${classes.package.directory}</file.generated.target> -->
 	</properties>
 
 	<dependencies>
@@ -134,7 +135,7 @@
 	</dependencies>
 
 	<build>
-		<sourceDirectory>${project.src.directory}</sourceDirectory>
+		<!-- <sourceDirectory>${project.src.directory}</sourceDirectory> -->
 
 		<extensions>
 			<extension>
@@ -389,10 +390,30 @@
 						<configuration>
 							<xslTemplate>src/main/config/transform.xsl</xslTemplate>
 							<srcDir>${file.download.target}</srcDir>
-							<destDir>${file.generated.target}</destDir>
+							<destDir>${generated.sources.directory}/${classes.package.directory}</destDir>
 							<fileNameRegex>\.xml$</fileNameRegex>
 							<fileNameReplacement>.java</fileNameReplacement>
 							<sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<!-- Generierte Berechnungsklassen in IDE Buildpath aufnehmen. -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${generated.sources.directory}</source>
+							</sources>
 						</configuration>
 					</execution>
 				</executions>
@@ -412,7 +433,7 @@
 						<phase>generate-sources</phase>
 						<configuration>
 							<directories>
-								<directory>${project.build.sourceDirectory}</directory>
+								<directory>${generated.sources.directory}</directory>
 							</directories>
 							<compilerCompliance>${project.java.version}</compilerCompliance>
 							<compilerSource>${project.java.version}</compilerSource>

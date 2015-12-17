@@ -14,6 +14,9 @@
 	<xsl:template match="/PAP">
 package info.kuechler.bmf.taxcalculator;
 
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.math.BigDecimal;
 import javax.annotation.Generated;
 
@@ -23,9 +26,11 @@ import javax.annotation.Generated;
  * Generiert aus Pseudocode von: &lt;a href="https://www.bmf-steuerrechner.de"&gt;bmf-steuerrechner&lt;a&gt;
  */
 @Generated(value="info.kuechler.bmf.taxcalculator", date="<xsl:value-of select="date:date-time()"/>", comments="Generated from pseudo code https://www.bmf-steuerrechner.de")
-public class <xsl:value-of select="./@name" /> {
+public class <xsl:value-of select="./@name" /> implements LohnsteuerCalculation {
 		<xsl:apply-templates select="./VARIABLES" />
 		<xsl:apply-templates select="./CONSTANTS" />
+		<xsl:call-template name="outputPropertyNames"/>
+		<xsl:call-template name="inputPropertyNames"/>
 		<xsl:apply-templates select="./METHODS" />
 		<xsl:call-template name="inputGetterAndSetter"/>
 		<xsl:call-template name="outputGetter"/>
@@ -58,6 +63,29 @@ public class <xsl:value-of select="./@name" /> {
 	<!-- common template for constants -->
 	<xsl:template name="constant">private final static <xsl:value-of select="./@type" /><xsl:value-of select="' '" /><xsl:value-of select="./@name" /> = <xsl:value-of select="./@value" />;</xsl:template>
 	
+	<xsl:template name="inputPropertyNames">
+    private static final Set&lt;String&gt; INPUT_PROPERTY_NAMES = new HashSet&lt;String&gt;(Arrays.asList(<xsl:for-each select="./VARIABLES/INPUTS/INPUT">"<xsl:value-of select="./@name"/>"<xsl:if test="position() != last()"><xsl:text>, </xsl:text></xsl:if></xsl:for-each>));
+		
+	/**
+	 * Namen der Eingabeparameter.
+	 */
+    public final Set&lt;String&gt; getInputPropertyNames() {
+        return INPUT_PROPERTY_NAMES;
+    }
+	</xsl:template>
+	
+	<xsl:template name="outputPropertyNames">
+	private static final Set&lt;String&gt; OUTPUT_PROPERTY_NAMES = new HashSet&lt;String&gt;(Arrays.asList(<xsl:for-each select="./VARIABLES/OUTPUTS/OUTPUT">"<xsl:value-of select="./@name"/>"<xsl:if test="position() != last()"><xsl:text>, </xsl:text></xsl:if></xsl:for-each>));
+	
+	/**
+	 * Namen der Ausgabeparameter.
+	 */	
+    public final Set&lt;String&gt; getOutputPropertyNames() { 
+        return OUTPUT_PROPERTY_NAMES; 
+    }
+	</xsl:template>
+	
+	
 	<!-- Getter and Setter for Input variables -->
 	<xsl:template name="inputGetterAndSetter">
 		<xsl:for-each select="./VARIABLES/INPUTS/INPUT"><xsl:call-template name="getter" /><xsl:call-template name="setter" /></xsl:for-each>
@@ -79,7 +107,7 @@ public class <xsl:value-of select="./@name" /> {
 	 */
 	public <xsl:value-of select="./@type" /> get<xsl:value-of select="translate(substring(./@name, 1, 1),$smallcase, $uppercase)" /><xsl:value-of select="substring(./@name, 2)" />() {
 		return <xsl:value-of select="./@name" />;
-    	}
+    }
     </xsl:template>
     
     <!-- a setter method -->
@@ -93,7 +121,7 @@ public class <xsl:value-of select="./@name" /> {
      */
 	public void set<xsl:value-of select="translate(substring(./@name, 1, 1),$smallcase, $uppercase)" /><xsl:value-of select="substring(./@name, 2)" />(final <xsl:value-of select="./@type" /><xsl:value-of select="' '" /><xsl:value-of select="./@name" />) {
 		this.<xsl:value-of select="./@name" />=<xsl:value-of select="./@name" />;
-    	}
+    }
     </xsl:template>
 
 </xsl:stylesheet>
